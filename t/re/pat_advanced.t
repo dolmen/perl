@@ -89,6 +89,7 @@ sub run_tests {
         # should not match.
         ok "\x8e" =~ /[\x89-\x91]/, '"\x8e" =~ /[\x89-\x91]/';
         ok "\xce" =~ /[\xc9-\xd1]/, '"\xce" =~ /[\xc9-\xd1]/';
+        ok "\xd0" =~ /[\xc9-\xd1]/, '"\xd0" =~ /[\xc9-\xd1]/';
 
         skip "Not an EBCDIC platform", 2 unless ord ('i') == 0x89 &&
                                                 ord ('J') == 0xd1;
