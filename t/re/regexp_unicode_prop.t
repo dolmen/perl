@@ -64,6 +64,7 @@ my @CLASSES = (
     # It's ok to repeat class names.
     #
     InLatin1Supplement        =>
+               # XXX etc
                $::IS_EBCDIC ? ['!\x{7f}',  '\x{80}',            '!\x{100}']
                             : ['!\x{7f}',  '\x{80}',  '\x{ff}', '!\x{100}'],
     InLatinExtendedA          =>
@@ -153,8 +154,8 @@ while (my ($class, $chars) = each %SHORT_PROPERTIES) {
     push @{$d {IsWord}}  => map {$class =~ /^[LMN]/ || $_ eq "_"
                                                      ? $_ : "!$_"} @$chars;
     push @{$d {IsSpace}} => map {$class =~ /^Z/ ||
-                                 length ($_) == 1 && ord ($_) >= 0x09
-                                                  && ord ($_) <= 0x0D
+                                 length ($_) == 1 && ord_native_to_latin1(ord ($_)) >= 0x09
+                                                  && ord_native_to_latin1(ord ($_)) <= 0x0D
                                                      ? $_ : "!$_"} @$chars;
 }
 

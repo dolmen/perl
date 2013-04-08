@@ -100,6 +100,7 @@ sub run_tests {
         # the good of EBCDIC, so let's test these only there.
         unlike("\x8e", qr/[i-j]/, '"\x8e" !~ /[i-j]/');
         unlike("\xce", qr/[I-J]/, '"\xce" !~ /[I-J]/');
+        unlike("\xd0", qr/[I-J]/, '"\xd0" !~ /[I-J]/');
     }
 
     {
