@@ -130,6 +130,10 @@ extern int   fseeko(FILE *, off_t, int);
 extern off_t ftello(FILE *);
 #endif
 
+static const U8 CR = LATIN1_TO_NATIVE(0xd);
+static const U8 LF = LATIN1_TO_NATIVE(0xa);
+
+
 #ifndef USE_SFIO
 
 EXTERN_C int perlsio_binmode(FILE *fp, int iotype, int mode);
@@ -4535,7 +4539,7 @@ PerlIOCrlf_unread(pTHX_ PerlIO *f, const void *vbuf, Size_t count)
 {
     PerlIOCrlf * const c = PerlIOSelf(f, PerlIOCrlf);
     if (c->nl) {	/* XXXX Shouldn't it be done only if b->ptr > c->nl? */
-	*(c->nl) = 0xd;
+	*(c->nl) = CR;
 	c->nl = NULL;
     }
     if (!(PerlIOBase(f)->flags & PERLIO_F_CRLF))
@@ -4559,7 +4563,7 @@ PerlIOCrlf_unread(pTHX_ PerlIO *f, const void *vbuf, Size_t count)
 		if (ch == '\n') {
 		    if (b->ptr - 2 >= b->buf) {
 			*--(b->ptr) = 0xa;
-			*--(b->ptr) = 0xd;
+			*--(b->ptr) = CR;
 			unread++;
 			count--;
 		    }
@@ -4592,12 +4596,12 @@ PerlIOCrlf_get_cnt(pTHX_ PerlIO *f)
 	PerlIO_get_base(f);
     if (PerlIOBase(f)->flags & PERLIO_F_RDBUF) {
 	PerlIOCrlf * const c = PerlIOSelf(f, PerlIOCrlf);
-	if ((PerlIOBase(f)->flags & PERLIO_F_CRLF) && (!c->nl || *c->nl == 0xd)) {
+	if ((PerlIOBase(f)->flags & PERLIO_F_CRLF) && (!c->nl || *c->nl == CR)) {
 	    STDCHAR *nl = (c->nl) ? c->nl : b->ptr;
 	  scan:
-	    while (nl < b->end && *nl != 0xd)
+	    while (nl < b->end && *nl != CR)
 		nl++;
-	    if (nl < b->end && *nl == 0xd) {
+	    if (nl < b->end && *nl == CR) {
 	      test:
 		if (nl + 1 < b->end) {
 		    if (nl[1] == 0xa) {
@@ -4640,7 +4644,7 @@ PerlIOCrlf_get_cnt(pTHX_ PerlIO *f)
 			b->buf--;       /* Point at space */
 			b->ptr = nl = b->buf;   /* Which is what we hand
 						 * off */
-			*nl = 0xd;      /* Fill in the CR */
+			*nl = CR;      /* Fill in the CR */
 			if (code == 0)
 			    goto test;  /* fill() call worked */
 			/*
@@ -4666,7 +4670,7 @@ PerlIOCrlf_set_ptrcnt(pTHX_ PerlIO *f, STDCHAR * ptr, SSize_t cnt)
     if (!ptr) {
 	if (c->nl) {
 	    ptr = c->nl + 1;
-	    if (ptr == b->end && *c->nl == 0xd) {
+	    if (ptr == b->end && *c->nl == CR) {
 		/* Deferred CR at end of buffer case - we lied about count */
 		ptr--;
 	    }
@@ -4684,7 +4688,7 @@ PerlIOCrlf_set_ptrcnt(pTHX_ PerlIO *f, STDCHAR * ptr, SSize_t cnt)
 	 */
 	IV flags = PerlIOBase(f)->flags;
 	STDCHAR *chk = (c->nl) ? (c->nl+1) : b->end;
-	if (ptr+cnt == c->nl && c->nl+1 == b->end && *c->nl == 0xd) {
+	if (ptr+cnt == c->nl && c->nl+1 == b->end && *c->nl == CR) {
 	  /* Deferred CR at end of buffer case - we lied about count */
 	  chk--;
 	}
@@ -4702,7 +4706,7 @@ PerlIOCrlf_set_ptrcnt(pTHX_ PerlIO *f, STDCHAR * ptr, SSize_t cnt)
 	    /*
 	     * They have taken what we lied about
 	     */
-	    *(c->nl) = 0xd;
+	    *(c->nl) = CR;
 	    c->nl = NULL;
 	    ptr++;
 	}
@@ -4737,7 +4741,7 @@ PerlIOCrlf_write(pTHX_ PerlIO *f, const void *vbuf, Size_t count)
 			break;
 		    }
 		    else {
-			*(b->ptr)++ = 0xd;      /* CR */
+			*(b->ptr)++ = CR;      /* CR */
 			*(b->ptr)++ = 0xa;      /* LF */
 			buf++;
 			if (PerlIOBase(f)->flags & PERLIO_F_LINEBUF) {
@@ -4766,7 +4770,7 @@ PerlIOCrlf_flush(pTHX_ PerlIO *f)
 {
     PerlIOCrlf * const c = PerlIOSelf(f, PerlIOCrlf);
     if (c->nl) {
-	*(c->nl) = 0xd;
+	*(c->nl) = CR;
 	c->nl = NULL;
     }
     return PerlIOBuf_flush(aTHX_ f);
