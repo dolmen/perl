@@ -5150,8 +5150,7 @@ Perl_yylex(pTHX)
 	     * check if it in fact is. */
 	    if (bof && PL_rsfp &&
 		     (*s == 0 ||
-                      /* XXX */
-		      *(U8*)s == 0xEF ||
+		      *(U8*)s == BOM_UTF8_FIRST_BYTE ||
 		      *(U8*)s >= 0xFE ||
 		      s[1] == 0)) {
 		Off_t offset = (IV)PerlIO_tell(PL_rsfp);
