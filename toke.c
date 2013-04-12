@@ -3460,12 +3460,17 @@ S_scan_const(pTHX_ char *start)
 			    has_utf8 = TRUE;
 			}
 
-                        /* Add the code point to the output.  Note that it is a
-                         * Unicode and not a native value */
+#ifdef EBCDIC
+                        /* Note that the input is Unicode and hence must be
+                         * converted to native */
+                        uv = UNI_TO_NATIVE(uv);
+#endif
+
+                        /* Add the code point to the output.  */
 			if (UNI_IS_INVARIANT(uv)) {
 			    *d++ = (char) uv;
 			}
-			else d = (char*)uvchr_to_utf8((U8*)d, UNI_TO_NATIVE(uv));
+			else d = (char*)uvchr_to_utf8((U8*)d, uv);
 		    }
 		}
 		else /* Here is \N{NAME} but not \N{U+...}. */

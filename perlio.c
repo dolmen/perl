@@ -130,8 +130,8 @@ extern int   fseeko(FILE *, off_t, int);
 extern off_t ftello(FILE *);
 #endif
 
-static const U8 CR = LATIN1_TO_NATIVE(0xd);
-static const U8 LF = LATIN1_TO_NATIVE(0xa);
+static U8 CR = LATIN1_TO_NATIVE(0xd);
+static U8 LF = LATIN1_TO_NATIVE(0xa);
 
 
 #ifndef USE_SFIO
